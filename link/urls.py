@@ -1,8 +1,9 @@
 from django.urls import path
-from . views import *
+from . import views 
 
 urlpatterns = [
-    path('', index, name='index'),
-    path('create', create, name='create'),
-    path('<str:pk>', go, name='go')
+    path('', views.index, name='index'),
+    path('shorten', views.shorten_post, name='shorten_post'),
+    path('shorten/<str:url>', views.shorten, name='shorten'),
+    path('<str:url_hash>', views.redirect_hash, name='redirect'),
 ]

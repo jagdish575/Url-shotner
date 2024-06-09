@@ -1,106 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <script   src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <!-- Include MDC CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/13.0.0/material-components-web.min.css" rel="stylesheet">
+    
     <style>
-        *,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+        /* Custom CSS for the form */
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 20px;
+            margin: 40px auto;
+            width: 300px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
-body,
-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
+        .mdc-text-field {
+            width: 100%;
+        }
 
-body {
-  min-height: 100vh;
-  font-family: "Lato", sans-serif;
-  line-height: 1.5;
-  color: #111;
-}
+        .mdc-button {
+            align-self: flex-end;
+            color: #6200ea;  /* Adjust button text color */
+        }
 
-main {
-  max-width: 720px;
-  width: 100%;
-  border: 2.5px solid #330867;
-  border-radius: 2.5px;
-  box-shadow: 0 10px 20px rgba(17, 17, 17, 0.125),
-    0 5px 5px rgba(17, 17, 17, 0.25);
-  background-image: linear-gradient(to top, #30cfd0 0%, #330867 100%);
-}
+        .mdc-button__ripple {
+            background-color: #bb86fc;  /* Adjust ripple color */
+        }
 
-h1 {
-  padding: 1rem;
-  color: white;
-}
+        .mdc-button:hover {
+            background-color: rgba(98, 0, 234, 0.1);  /* Adjust hover effect */
+        }
 
-input,
-button {
-  font-family: inherit;
-  line-height: inherit;
-  color: inherit;
-  border: 0;
-  padding: 1rem;
-}
+        .mdc-text-field__input {
+            padding: 10px;
+            font-size: 16px;
+        }
 
-input {
-  box-sizing: border-box;
-  width: 100%;
-}
+        .mdc-floating-label {
+            font-size: 14px;
+            color: #6200ea;  /* Adjust label color */
+        }
 
-.buttons {
-  display: flex;
-}
+        .mdc-notched-outline {
+            border-color: #6200ea;  /* Adjust outline color */
+        }
 
-button {
-  cursor: pointer;
-  flex: 1;
-  background-color: transparent;
-  color: white;
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.5);
-  }
-}
+        .mdc-text-field--focused .mdc-floating-label {
+            color: #6200ea;
+        }
 
-section {
-  min-height: 120px;
-  text-align: center;
-  background-color: white;
-}
+        .mdc-text-field--focused .mdc-notched-outline {
+            border-width: 2px;
+        }
 
+        .mdc-button--outlined {
+            border-color: #6200ea;
+        }
+
+        .mdc-button__label {
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* Custom CSS for card content */
+        .mdc-card__content {
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .mdc-card__content a {
+            color: #6200ea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .mdc-card__content a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
-<main>
-  <h1>URL Shortener</h1>
-  <form id="post-form">
-    {% csrf_token %}
-  <input type="text" name="link" id="link" placeholder="Enter URL here">
-  <div class="buttons">
-    <button type="submit" id="shorten">Shorten</button>
-  </div>
-  </form>
-  
-  <section id="section"><h2></h2></section>
+<body>
+    {% extends 'base.html' %}
     
-</main>
-
-<script type="text/javascript">
-  $(document).on('submit','#post-form',function(e){
-    e.preventDefault();
-
-    $.ajax({
-      type:'POST',
-      url:'/create',
-      data:{
-        link:$('#link').val(),
-        csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
-      },
-      success: function(data){
-        $('h2').html("www.surls.ga/"+data)
-      }
-    });
-  });
-</script>
+    {% block content %}
+    <div class="container">
+        <form action="{% url 'shorten_post' %}" method="post">
+          {% csrf_token %}
+          <label class="mdc-text-field mdc-text-field--outlined">
+              <span class="mdc-notched-outline">
+                <span class="mdc-notched-outline__leading"></span>
+                <span class="mdc-notched-outline__notch">
+                  <span class="mdc-floating-label" id="my-label-id">URL</span>
+                </span>
+                <span class="mdc-notched-outline__trailing"></span>
+              </span>
+            <input type="text" name="url" class="mdc-text-field__input" aria-labelledby="my-label-id">
+          </label>
+          <button class="mdc-button mdc-button--outlined" type="submit">
+            <span class="mdc-button__ripple"></span>
+            <span class="mdc-button__label">Shorten</span>
+          </button>
+        </form>
+        
+        <div class="mdc-card__content">
+          <p>Shortened URL: <a href="{{shortened_url}}" target="_blank">{{shortened_url}}</a></p>
+      </div>
+      
+    </div>
+    {% endblock %}
+    
+    <!-- Include MDC JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/13.0.0/material-components-web.min.js"></script>
+    <script>
+        mdc.autoInit();  // Automatically initialize all MDC components
+    </script>
+</body>
+</html>

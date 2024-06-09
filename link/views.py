@@ -1,20 +1,23 @@
 from django.shortcuts import render, redirect
-import uuid
-from .models import Url
-from django.http import HttpResponse
+from django.urls import *
 
-# Create your views here.
+from . import service
+
+
 def index(request):
     return render(request, 'index.html')
 
-def create(request):
-    if request.method == 'POST':
-        link = request.POST['link']
-        uid = str(uuid.uuid4())[:5]
-        new_url = Url(link=link,uuid=uid)
-        new_url.save()
-        return HttpResponse(uid)
 
-def go(request, pk):
-    url_details = Url.objects.get(uuid=pk)
-    return redirect('https://'+url_details.link)
+def redirect_hash(request, url_hash):
+    original_url = service.load_url(url_hash).original_url
+    return redirect(original_url)
+
+
+def shorten_post(request):
+    return shorten(request, request.POST['url'])
+
+
+def shorten(request, url):
+    shortened_url_hash = service.shorten(url)
+    shortened_url = request.build_absolute_uri(reverse('redirect', args=[shortened_url_hash]))
+    return render(request, 'index.html', {'shortened_url': shortened_url})
